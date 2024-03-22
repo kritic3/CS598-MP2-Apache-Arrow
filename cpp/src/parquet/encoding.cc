@@ -26,6 +26,7 @@
 #include <string_view>
 #include <utility>
 #include <vector>
+#include <sstream>
 
 #include "arrow/array.h"
 #include "arrow/array/builder_dict.h"
@@ -3153,6 +3154,17 @@ class ASCIIEncoder : public EncoderImpl, virtual public TypedEncoder<DType> {
 template <typename DType>
 void ASCIIEncoder<DType>::Put(const T* buffer, int num_values) {
   // TO BE IMPLEMENTED
+  std::ostringstream oss;
+  oss << reinterpret_cast<const void*>(buffer);
+  std::string address_str = oss.str();
+  std::stringstream ss;
+  if (num_values > 0) {
+    for (char & c : int_str) {
+        ss << (int(c));
+    }
+    ss << '\000';
+    PARQUET_THROW_NOT_OK(sink_.Append(reinterpret_cast<const uint8_t*>(ss.str().data()), ss.str().size()));
+  }
 }
 
 // ----------------------------------------------------------------------
